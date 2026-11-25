@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UK Road Safety Command Platform</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#040a07;--cd:#09130e;--ln:#164a35;--g:#2dff8f;--tx:#d3f5e5;--mu:#6b9983;--r:#ff4d5a;--a:#ffb020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:12px/1.3 "Segoe UI",system-ui,Arial,sans-serif}
+#app{height:100%;display:grid;grid-template-columns:1fr 310px;grid-template-rows:54px 1fr 205px;gap:8px;padding:8px}
+header{grid-column:1/3;display:flex;align-items:center;gap:18px;border:1px solid var(--ln);background:linear-gradient(90deg,#0b2a1c,var(--cd));padding:6px 14px;border-radius:6px;flex-wrap:wrap}
+h1{font-size:16px;margin:0;color:var(--g);white-space:nowrap}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer}
+nav button{background:none;border:1px solid transparent;color:var(--mu);padding:6px 12px;border-radius:4px}
+nav button.on{color:var(--g);border-color:var(--g);background:#0d2a1c}
+#chips{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+#chips button,.btn{background:#0d2a1c;border:1px solid var(--ln);color:var(--tx);border-radius:12px;padding:3px 10px}
+.btn:hover,#chips button:hover{border-color:var(--g)}
+#mapw{grid-row:2;position:relative;border:1px solid var(--ln);border-radius:6px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#0d2b1d,#040a07 72%)}
+#mapw:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#123d2b44 1px,transparent 1px),linear-gradient(90deg,#123d2b44 1px,transparent 1px);background-size:40px 40px}
+#cv,#ov,#sc{position:absolute;inset:0;width:100%;height:100%}
+#ov{cursor:grab}
+#lg{position:absolute;left:12px;bottom:10px;display:flex;gap:12px;color:var(--mu);background:#040a07cc;padding:4px 8px;border-radius:4px}
+#lg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+#src{position:absolute;right:12px;bottom:10px;color:var(--mu);text-align:right;max-width:50%;pointer-events:none}
+#zb{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:4px}
+#zb button{width:28px;height:28px;background:#06120dcc;border:1px solid var(--ln);color:var(--g);border-radius:4px;font-size:16px}
+#hl{position:absolute;left:52px;top:12px;width:210px;background:#06120dd9;border:1px solid var(--ln);border-radius:6px;padding:8px}
+#hl h3{margin:0 0 6px;color:var(--r);font-size:12px}
+#hl div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;cursor:pointer;border-top:1px solid #10281d}
+#hl div:hover{color:var(--g)}#hl em{font-style:normal;color:var(--r)}
+#card{position:absolute;right:10px;top:10px;bottom:10px;width:300px;background:#06120df2;border:1px solid var(--g);border-radius:8px;padding:10px 12px;overflow:auto;box-shadow:0 0 24px #2dff8f44;display:none}
+#card h2{margin:0;font-size:15px;color:var(--g)}#card small{color:var(--mu)}
+#card h3{margin:10px 0 4px;font-size:12px;color:var(--g)}
+.x{position:absolute;right:8px;top:6px;background:none;border:0;color:var(--mu);font-size:16px}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.kg div{background:#0c1d15;border:1px solid var(--ln);border-radius:5px;padding:5px 8px}.kg b{display:block;font-size:17px;color:var(--g)}
+.why div{padding:3px 0;border-top:1px solid #10281d}.why b{color:var(--r)}
+.go{width:100%;margin-top:10px;padding:8px;border-radius:6px;background:#2dff8f;color:#03170d;border:0;font-weight:600}
+#sim{position:absolute;inset:0;display:none;background:#040a07}
+#si{position:absolute;left:10px;top:10px;width:250px;background:#06120de6;border:1px solid var(--g);border-radius:8px;padding:10px 12px;max-height:calc(100% - 20px);overflow:auto}
+#si h2{margin:0 0 6px;font-size:14px}#si div.l{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px solid #10281d}#si span{color:var(--mu)}
+#si p{color:var(--mu);margin:8px 0 0;font-size:11px}
+#sb{position:absolute;right:10px;top:10px;display:flex;gap:6px}
+#side{grid-row:2/4;grid-column:2;display:flex;flex-direction:column;gap:8px;min-height:0}
+#bot{grid-row:3;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;min-height:0}
+.card{background:var(--cd);border:1px solid var(--ln);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#side .card{flex:1}
+.card h3{margin:0 0 6px;font-size:12px;color:var(--g);font-weight:600}
+.k{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.k .card b{font-size:22px;color:var(--g)}.k small{color:var(--mu)}
+.hb{display:flex;flex-direction:column;gap:4px;overflow:auto;flex:1}
+.r{display:grid;grid-template-columns:96px 1fr 50px;gap:6px;align-items:center}
+.r.cl,.c.cl{cursor:pointer}
+.r span{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r b{height:8px;background:#0f2a1f;border-radius:4px;overflow:hidden}
+.r i{display:block;height:100%;background:var(--g);border-radius:4px}
+.r em{font-style:normal;text-align:right}
+.off{opacity:.3}
+.vb{display:flex;align-items:stretch;gap:3px;flex:1;min-height:70px}
+.c{flex:1;display:flex;flex-direction:column}
+.t{flex:1;position:relative}
+.t i{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(var(--g),#0a7a44);border-radius:2px 2px 0 0}
+.c u{text-decoration:none;font-size:9px;color:var(--mu);height:12px;text-align:center}
+@media(max-width:900px){html,body{height:auto}#app{display:flex;flex-direction:column;height:auto}#mapw{height:480px;flex:none}#bot{grid-template-columns:1fr 1fr}.card{min-height:210px}#card{left:10px;width:auto}#hl{display:none}}
+#map{position:absolute;inset:0;background:#0a1a12;z-index:1}
+#cv,#ov{pointer-events:none;z-index:500}
+#mapw:before{display:none}
+#zb{left:60px;top:12px;flex-direction:row;z-index:700}#zb button{width:28px}
+#zb button.bm{width:auto;padding:0 9px;font-size:11px}#zb button.on{background:#2dff8f;color:#03170d}
+#hl{left:12px;top:56px;z-index:700}#lg,#card{z-index:700}#src{bottom:26px;z-index:700}#sim{z-index:900}
+.leaflet-control-zoom a{background:#06120d!important;color:#2dff8f!important;border-color:#164a35!important}
+.nar{margin:4px 0;color:var(--tx);line-height:1.45}
+.wy{margin:6px 0;padding-left:16px;line-height:1.4}.wy li{margin-bottom:5px}#si h3{margin:10px 0 2px;font-size:12px;color:var(--g)}
+</style></head><body>
+<div id="app">
+<header><h1>UK Road Safety Command Platform</h1><nav id="nav"></nav><div id="chips"></div></header>
+<div id="mapw"><div id="map"></div><canvas id="cv"></canvas><canvas id="ov"></canvas>
+<div id="zb"><button id="zr" title="Reset view">⌂</button><button class="bm on" data-bm="dark">Dark</button><button class="bm" data-bm="street">Streets</button><button class="bm" data-bm="sat">Satellite</button></div>
+<div id="hl"></div>
+<div id="lg"><span><i style="background:#ff4d5a"></i>Fatal</span><span><i style="background:#ffb020"></i>Serious</span><span><i style="background:#2dff8f"></i>Slight</span></div>
+<div id="src">DfT STATS19 · Great Britain · 2025<br>Real map: scroll to zoom, drag to pan, click anywhere for an area report.</div>
+<div id="card"></div>
+<div id="sim"><canvas id="sc"></canvas><div id="si"></div><div id="sb"><button class="btn" id="sp">‹ Prev</button><button class="btn" id="sn">Next ›</button><button class="btn" id="sx">Close ✕</button></div></div></div>
+<div id="side"><div class="k" id="kpi"></div><div class="card" id="s0"></div><div class="card" id="s1"></div><div class="card" id="s2"></div></div>
+<div id="bot"><div class="card" id="b0"></div><div class="card" id="b1"></div><div class="card" id="b2"></div><div class="card" id="b3"></div></div>
+</div>
+<script>
+const D="__DATA__",N=__N__,M=__META__;
+const $=s=>document.querySelector(s);
+const b=Uint8Array.from(atob(D),c=>c.charCodeAt(0));
+const K=['sev','dow','hr','mo','rt','jn','sp','li','we','su','ur','inv','cas','veh'],C={};
+K.forEach((k,i)=>C[k]=b.subarray(i*N,(i+1)*N));
+const LA=new Uint16Array(b.buffer,14*N,N),LO=new Uint16Array(b.buffer,16*N,N);
+const NM=Object.assign({},M,{dow:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],mo:'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' '),hr:[...Array(24).keys()].map(String)});
+const LB={sev:'Severity',inv:'Road user involved',dow:'Day of week',hr:'Hour of day',mo:'Month',sp:'Speed limit',li:'Light conditions',rt:'Road type',jn:'Junction type',ur:'Area',su:'Road surface',we:'Weather'};
+const T=[{n:'Overview',r:['sev','inv','dow'],b:['hr','mo','sp','li']},{n:'Road design',r:['rt','jn','sp'],b:['ur','inv','li','su']},{n:'Time',r:['sev','dow','mo'],b:['hr','li','we','ur']},{n:'Conditions',r:['we','su','li'],b:['rt','jn','sev','inv']}];
+const SC=['#ff4d5a','#ffb020','#2dff8f'],KX=.574;
+const CITIES=[['London',51.51,-.13],['Birmingham',52.48,-1.9],['Manchester',53.48,-2.24],['Leeds',53.8,-1.55],['Liverpool',53.41,-2.99],['Newcastle',54.98,-1.61],['Sheffield',53.38,-1.47],['Bristol',51.45,-2.59],['Cardiff',51.48,-3.18],['Glasgow',55.86,-4.25],['Edinburgh',55.95,-3.19],['Southampton',50.9,-1.4],['Nottingham',52.95,-1.15],['Plymouth',50.37,-4.14],['Inverness',57.48,-4.22],['Aberdeen',57.15,-2.09],['Norwich',52.63,1.3],['Swansea',51.62,-3.94]];
+const LAT=new Float32Array(N),LON=new Float32Array(N),PX=new Float32Array(N),PY=new Float32Array(N);
+for(let i=0;i<N;i++){if(!LA[i]){PX[i]=NaN;continue}LAT[i]=49.5+LA[i]/65535*11.5;LON[i]=-9+LO[i]/65535*11;PX[i]=(LON[i]+180)/360;PY[i]=.5-Math.log(Math.tan(Math.PI/4+LAT[i]*Math.PI/360))/(2*Math.PI)}
+let F={},tab=0,W=0,H=0,R=1,V={k:1,ox:0,oy:0},HS=[],sel=null,rq=0,BM='dark',map;
+function pass(i,ex){for(const k in F)if(k!==ex&&!F[k].has(C[k][i]))return false;return true}
+function counts(d){const a=new Array(NM[d].length).fill(0);for(let i=0;i<N;i++)if(pass(i,d))a[C[d][i]]++;return a}
+function countsS(S,d){const a=new Array(NM[d].length).fill(0);for(const i of S)a[C[d][i]]++;return a}
+const BASE={};Object.keys(LB).forEach(d=>BASE[d]=counts(d));
+const GL={};{const f={dk:i=>C.li[i]>0,jn:i=>C.jn[i]>=1&&C.jn[i]<=5,fast:i=>C.sp[i]>=3&&C.sp[i]<=5,wet:i=>C.su[i]!=0};for(const k in f){let n=0;for(let i=0;i<N;i++)if(f[k](i))n++;GL[k]=n/N}GL.f=f;{let n=0;for(let i=0;i<N;i++)if(C.sev[i]<2)n++;GL.ks=n/N}}
+function hb(a,d,sel,clk){const mx=Math.max(...a,1),v=d==='hr'||d==='mo';let h='<div class="'+(v?'vb':'hb')+'">';
+NM[d].forEach((n,j)=>{if(clk?!BASE[d][j]:!a[j]&&!v)return;const p=a[j]/mx*100,on=!sel||sel.has(j),at=(clk?'data-d="'+d+'" data-j="'+j+'" ':'')+'title="'+n+': '+a[j].toLocaleString()+'"',cl=clk?' cl':'';
+h+=v?'<div class="c'+cl+(on?'':' off')+'" '+at+'><div class="t"><i style="height:'+p+'%"></i></div><u>'+(d==='hr'?(j%3?'':n):n[0])+'</u></div>'
+:'<div class="r'+cl+(on?'':' off')+'" '+at+'><span>'+n+'</span><b><i style="width:'+p+'%'+(d==='sev'?';background:'+SC[j]:'')+'"></i></b><em>'+a[j].toLocaleString()+'</em></div>'});return h+'</div>'}
+function chart(el,d){el.innerHTML='<h3>'+LB[d]+'</h3>'+hb(counts(d),d,F[d],true)}
+function kpi(){let c=0,k=0,f=0,s=0;for(let i=0;i<N;i++)if(pass(i)){c++;k+=C.cas[i];if(C.sev[i]==0)f++;else if(C.sev[i]==1)s++}
+const q=(t,v,x)=>'<div class="card"><small>'+t+'</small><b>'+v.toLocaleString()+'</b><small>'+(x||'&nbsp;')+'</small></div>';
+$('#kpi').innerHTML=q('Collisions',c,Math.round(c/N*100)+'% of all')+q('Casualties',k)+q('Fatal',f,c?(f/c*1000).toFixed(1)+' per 1,000':'')+q('Serious',s,c?(s/c*100).toFixed(1)+'% of collisions':'')}
+function chips(){let h='';for(const d in F)F[d].forEach(j=>h+='<button data-d="'+d+'" data-j="'+j+'">'+LB[d]+': '+NM[d][j]+' ×</button>');$('#chips').innerHTML=h+(h?'<button id="rs">Reset all</button>':'')}
+const sx=x=>x*V.k-V.ox,sy=y=>y*V.k-V.oy;
+function proj(){const z=map.getZoom(),c=map.project(map.getCenter(),z);V.k=256*Math.pow(2,z);V.ox=c.x-W/2;V.oy=c.y-H/2}
+function drawMap(){rq=0;if(!W)return;proj();const g=$('#cv').getContext('2d');g.setTransform(R,0,0,R,0,0);g.clearRect(0,0,W,H);
+const lt=BM==='street',z=Math.max(1.3,Math.min(7,(map.getZoom()-4.2)*1.1)),fl=Object.keys(F).length;g.globalCompositeOperation=lt?'source-over':'lighter';
+if(fl){g.fillStyle=lt?'rgba(0,0,0,.12)':'rgba(45,255,143,.07)';for(let i=0;i<N;i++){const x=sx(PX[i]),y=sy(PY[i]);if(x>-3&&x<W&&y>-3&&y<H)g.fillRect(x-z/2,y-z/2,z,z)}}
+const col=lt?['rgba(220,30,50,.9)','rgba(240,140,0,.8)','rgba(20,150,80,.5)']:['rgba(255,77,90,.95)','rgba(255,176,32,.6)','rgba(45,255,143,.3)'];
+[2,1,0].forEach(s=>{g.fillStyle=col[s];const q=z*[2.4,1.7,1.2][s];
+for(let i=0;i<N;i++){if(C.sev[i]!=s)continue;const x=sx(PX[i]),y=sy(PY[i]);if(x>-3&&x<W&&y>-3&&y<H&&pass(i))g.fillRect(x-q/2,y-q/2,q,q)}})}
+function req(){if(!rq)rq=requestAnimationFrame(drawMap)}
+function near(x,y){const lo=x*360-180,la=Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;let m=1e9,n='';CITIES.forEach(c=>{const d=Math.hypot((c[2]-lo)*.6,c[1]-la);if(d<m){m=d;n=c[0]}});return m<.5?'near '+n:'Rural area'}
+function hot(){proj();const cs=Math.max(.003,.8/Math.pow(2,map.getZoom()-4)),m=new Map(),x0=V.ox/V.k,x1=(V.ox+W)/V.k,y0=V.oy/V.k,y1=(V.oy+H)/V.k;
+for(let i=0;i<N;i++){const x=PX[i],y=PY[i];if(!(x>x0&&x<x1&&y>y0&&y<y1)||!pass(i))continue;const key=(Math.floor(LAT[i]/cs)+1000)*100000+Math.floor(LON[i]/cs)+50000;let o=m.get(key);if(!o){o={s:0,n:0,f:0,x:0,y:0,la:0,lo:0};m.set(key,o)}const s=C.sev[i];o.s+=s==0?10:s==1?3:1;o.n++;if(s==0)o.f++;o.x+=x;o.y+=y;o.la+=LAT[i];o.lo+=LON[i]}
+HS=[...m.values()].filter(o=>o.n>=5).sort((a,b)=>b.s-a.s).slice(0,12).map(o=>({x:o.x/o.n,y:o.y/o.n,lat:o.la/o.n,lon:o.lo/o.n,s:o.s,n:o.n,f:o.f,r:cs*.8/360}));
+$('#hl').innerHTML='<h3>Top danger zones in view</h3>'+HS.slice(0,5).map((h,i)=>'<div data-h="'+i+'"><span>'+(i+1)+'. '+near(h.x,h.y)+'</span><em>'+h.n+' · '+h.f+' fatal</em></div>').join('')}
+function update(){kpi();const t=T[tab];t.r.forEach((d,i)=>chart($('#s'+i),d));t.b.forEach((d,i)=>chart($('#b'+i),d));chips();hot();req();if(sel&&!SIM.on)openCard(sel.x,sel.y,sel.r)}
+function layout(){const w=$('#mapw').clientWidth,h=$('#mapw').clientHeight;if(!w)return;R=devicePixelRatio||1;W=w;H=h;['cv','ov','sc'].forEach(id=>{const c=$('#'+id);c.width=w*R;c.height=h*R});map.invalidateSize();if(!V.set){map.fitBounds([[50,-7.5],[58.8,1.8]]);V.set=1}proj();req()}
+function topOf(S,d){const a=countsS(S,d);let j=0;a.forEach((v,x)=>{if(v>a[j])j=x});return[NM[d][j],Math.round(a[j]/S.length*100)]}
+function narr(S){const r=topOf(S,"rt"),j=topOf(S,"jn"),p=topOf(S,"sp"),u=topOf(S,"ur"),ks=Math.round(pc(S,i=>C.sev[i]<2)*100),g=Math.round(GL.ks*100);
+return 'Most collisions here are on '+r[0].toLowerCase()+' roads ('+r[1]+'%), mainly in '+u[0].toLowerCase()+' settings with a '+p[0]+' limit ('+p[1]+'%). The most common junction type is "'+j[0]+'" ('+j[1]+'%). '+ks+'% of the collisions here were fatal or serious, against '+g+'% across Great Britain'+(ks>g*1.2?', so this area is more severe than average.':ks<g*.8?', so this area is milder than average.':'.')}
+function area(x,y,r){const S=[],r2=r*r;for(let i=0;i<N;i++){const dx=PX[i]-x,dy=PY[i]-y;if(dx*dx+dy*dy<r2&&pass(i))S.push(i)}return S}
+const pc=(S,f)=>{let n=0;for(const i of S)if(f(i))n++;return n/S.length};
+function openCard(x,y,r){sel={x,y,r};const S=area(x,y,r),el=$('#card');el.style.display='block';
+if(!S.length){el.innerHTML='<button class="x" id="cx">✕</button><h2>No collisions here</h2><small>Nothing recorded in this spot with the current filters.</small>';return}
+let k=0,f=0,s=0;for(const i of S){k+=C.cas[i];if(C.sev[i]==0)f++;else if(C.sev[i]==1)s++}
+const why=[['In the dark',pc(S,GL.f.dk),GL.dk],['At a junction',pc(S,GL.f.jn),GL.jn],['On 50–70 mph roads',pc(S,GL.f.fast),GL.fast],['On a wet or icy road',pc(S,GL.f.wet),GL.wet]].map(w=>'<div>'+w[0]+': '+(w[1]>w[2]*1.25?'<b>':'<span>')+Math.round(w[1]*100)+'%'+(w[1]>w[2]*1.25?'</b>':'</span>')+' <small>(GB '+Math.round(w[2]*100)+'%)</small></div>').join('');
+el.innerHTML='<button class="x" id="cx">✕</button><h2>'+near(x,y)+'</h2><small>'+(LAT[S[0]].toFixed(2))+'°N, '+LON[S[0]].toFixed(2)+'° · area report</small>'+
+'<div class="kg"><div><small>Collisions</small><b>'+S.length.toLocaleString()+'</b></div><div><small>Casualties</small><b>'+k+'</b></div><div><small>Fatal</small><b style="color:#ff4d5a">'+f+'</b></div><div><small>Serious</small><b style="color:#ffb020">'+s+'</b></div></div>'+
+'<h3>Reading this area</h3><p class="nar">'+narr(S)+'</p><h3>What stands out</h3><div class="why">'+why+'</div>'+['sev','rt','jn','sp','li','inv','hr'].map(d=>'<h3>'+LB[d]+'</h3>'+hb(countsS(S,d),d,null,false)).join('')+'<button class="go" id="go">See how it happens at street level</button>';
+el._S=S}
+function closeCard(){sel=null;$('#card').style.display='none'}
+/* ---------- street-level replay ---------- */
+const SIM={on:false,S:[],i:0,t0:0};
+function rnd(s){s=s%2147483647||1;return()=>(s=s*16807%2147483647)/2147483647}
+const ST={20:12,30:23,40:36,50:53,60:73,70:96};
+function ped(g,x,y,a,col,t,s){g.save();g.translate(x,y);g.rotate(a);const sw=Math.sin(t*9)*2*s;g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(1,2,6*s,4.5*s,0,0,6.3);g.fill();g.fillStyle='#1b1b1b';g.beginPath();g.arc(sw+3*s,-2.4*s,1.7*s,0,6.3);g.arc(-sw+3*s,2.4*s,1.7*s,0,6.3);g.fill();g.fillStyle=col;g.beginPath();g.ellipse(0,0,3.4*s,6.2*s,0,0,6.3);g.fill();g.fillStyle='#e6c3a0';g.beginPath();g.arc(1.5*s,0,3*s,0,6.3);g.fill();g.restore()}
+function veh(g,x,y,a,l,w,col,bike){g.save();g.translate(x,y);g.rotate(a);g.fillStyle='rgba(0,0,0,.4)';g.beginPath();g.roundRect(-l/2+3,-w/2+4,l,w,w*.3);g.fill();g.fillStyle=col;g.beginPath();g.roundRect(-l/2,-w/2,l,w,w*.3);g.fill();
+if(bike){g.fillStyle='#222';g.fillRect(-l/2,-1,l,2);g.fillStyle='#e8a33d';g.beginPath();g.arc(0,0,w*.45+2,0,6.3);g.fill();g.fillStyle='#d9b99a';g.beginPath();g.arc(l*.1,0,w*.28+1,0,6.3);g.fill()}
+else{g.fillStyle='rgba(12,22,28,.88)';g.beginPath();g.roundRect(l*.14,-w*.4,l*.17,w*.8,3);g.fill();g.beginPath();g.roundRect(-l*.4,-w*.38,l*.1,w*.76,3);g.fill();g.fillStyle='rgba(255,255,255,.2)';g.fillRect(-l*.28,-w*.36,l*.4,w*.72);g.fillStyle='#fff3b0';g.fillRect(l/2-3,-w*.4,3,w*.22);g.fillRect(l/2-3,w*.18,3,w*.22);g.fillStyle='#e0202c';g.fillRect(-l/2,-w*.4,2.5,w*.2);g.fillRect(-l/2,w*.2,2.5,w*.2)}
+g.restore()}
+function scene(g,w,h,t,i){const rg=rnd(i+7),rt=C.rt[i],jn=C.jn[i],inv=C.inv[i],sv=C.sev[i],spd=parseInt(NM.sp[C.sp[i]])||30,dk=C.li[i],we=C.we[i],su=C.su[i],ur=C.ur[i]==0;
+const RW=Math.max(60,Math.min(h*.3,w*.2,120)),s=RW/90,cx=w/2,cy=h/2,rb=rt==0,du=rt==2,jc=!rb&&jn>=1&&jn<=5,tj=jn==1,rh=du?RW*1.35:RW,sw=RW*.2,wet=su==1||su==3||su==4;
+const pal=['#c9ced3','#2f5fa8','#a33a3a','#e8e8e8','#2b2f33','#d8b23a','#3a7a5a'],T0=Math.max(1.4,4.2-spd/22),tt=t%7.5,dt=Math.max(0,tt-T0),yA=cy+RW*(du?.45:.2);
+g.fillStyle=ur?'#59604f':'#2f5a35';g.fillRect(0,0,w,h);
+for(let n=0;n<30;n++){const x=rg()*w,y=rg()*h,bw=(45+rg()*60)*s,bh=(30+rg()*40)*s,c=pal[(rg()*7)|0];if(Math.abs(y-cy)<RW*1.2+bh*.5||((jc||rb)&&Math.abs(x-cx)<RW*1.2+bw*.5))continue;
+if(ur){g.fillStyle='rgba(0,0,0,.35)';g.fillRect(x+7,y+8,bw,bh);g.fillStyle=['#7b6a5d','#5f6b75','#8a7f74','#6a5f5a'][n%4];g.fillRect(x,y,bw,bh);g.fillStyle='rgba(255,255,255,.12)';g.fillRect(x+4,y+4,bw*.5,bh-8);g.fillStyle='rgba(0,0,0,.2)';g.fillRect(x+bw*.6,y+4,bw*.3,bh-8)}
+else{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.arc(x+5,y+6,(10+rg()*10)*s,0,6.3);g.fill();g.fillStyle=['#1f6b3a','#2a7d44','#175c30'][n%3];g.beginPath();g.arc(x,y,(10+rg()*10)*s,0,6.3);g.fill()}}
+g.fillStyle='#989b93';g.fillRect(0,cy-rh/2-sw,w,rh+2*sw);if(jc||rb)g.fillRect(cx-RW/2-sw,tj?cy:0,RW+2*sw,tj?h-cy:h);
+g.fillStyle=dk?'#1d2321':'#383e3c';g.fillRect(0,cy-rh/2,w,rh);if(jc||rb)g.fillRect(cx-RW/2,tj?cy:0,RW,tj?h-cy:h);
+if(rt==4){g.save();g.translate(cx-RW,cy-RW*.5);g.rotate(.45);g.fillRect(0,0,RW*3,RW*.5);g.restore()}
+if(rb){g.beginPath();g.arc(cx,cy,RW*.95,0,6.3);g.fill();g.fillStyle='#2a7d44';g.beginPath();g.arc(cx,cy,RW*.5,0,6.3);g.fill()}
+if(du){g.fillStyle='#2a7d44';g.fillRect(0,cy-RW*.07,w,RW*.14)}
+for(let n=0;n<160;n++){g.fillStyle=n%2?'rgba(255,255,255,.04)':'rgba(0,0,0,.09)';g.fillRect(rg()*w,cy-rh/2+rg()*rh,2,2)}
+g.strokeStyle='rgba(235,245,240,.75)';g.lineWidth=2;g.setLineDash([16*s,14*s]);g.beginPath();if(du){g.moveTo(0,cy-RW*.37);g.lineTo(w,cy-RW*.37);g.moveTo(0,cy+RW*.37);g.lineTo(w,cy+RW*.37)}else{g.moveTo(0,cy);g.lineTo(w,cy)}g.stroke();g.setLineDash([]);
+g.strokeStyle='rgba(255,255,255,.4)';g.beginPath();g.moveTo(0,cy-rh/2+3);g.lineTo(w,cy-rh/2+3);g.moveTo(0,cy+rh/2-3);g.lineTo(w,cy+rh/2-3);g.stroke();
+if(inv==0||jc){const zx=inv==0?cx:cx-RW*1.3;g.fillStyle='rgba(255,255,255,.85)';for(let y=cy-rh/2+RW*.07;y<cy+rh/2-RW*.08;y+=RW*.15)g.fillRect(zx-RW*.18,y,RW*.36,RW*.075)}
+if(jc){[[cx-RW*.85,cy-rh/2-sw*.5,'#2dff8f'],[cx+RW*.85,cy+rh/2+sw*.5,'#2dff8f'],[cx+RW*.4,cy+rh/2+sw*.5,'#ff4d5a']].forEach(q=>{g.fillStyle='#111';g.beginPath();g.arc(q[0],q[1],5*s,0,6.3);g.fill();g.fillStyle=q[2];g.shadowColor=q[2];g.shadowBlur=8;g.beginPath();g.arc(q[0],q[1],3*s,0,6.3);g.fill();g.shadowBlur=0})}
+const np=ur?6:2;for(let n=0;n<np;n++){const d=n%2?1:-1,x=(((n*173+tt*(22+n*4)*d)%(w+120))+w+120)%(w+120)-60,y=n%2?cy+rh/2+sw*.5:cy-rh/2-sw*.5;ped(g,x,y,d>0?0:Math.PI,pal[n%7],tt+n,s)}
+let P,A0,B0;if(inv==0){P=[cx,yA];A0=[-70,yA];B0=[cx,cy-rh/2-sw*.5]}else if(jc||rb){P=[cx+RW*.2,yA];A0=[-70,yA];B0=[cx+RW*.2,h+70]}else{P=[cx,cy+RW*.04];A0=[-70,yA];B0=[w+70,cy-RW*(du?.45:.2)]}
+const mv=(S0,k)=>{const f=Math.min(tt/T0,1),u=Math.atan2(P[1]-S0[1],P[0]-S0[0]),e=1-Math.exp(-dt*3);return[S0[0]+(P[0]-S0[0])*f+Math.cos(u)*e*30,S0[1]+(P[1]-S0[1])*f+Math.sin(u)*e*30,u]},a=mv(A0),bb=mv(B0);
+if(dt>0){g.strokeStyle='rgba(10,10,10,.55)';g.lineWidth=3*s;g.beginPath();[-.07,.07].forEach(o=>{g.moveTo(Math.max(0,P[0]-RW*1.4),A0[1]+RW*o);g.lineTo(a[0],a[1]+RW*o)});g.stroke()}
+const fol=[1,2].map(k=>{const x=Math.min(a[0]-k*RW*1.5,P[0]-RW*(.95+.75*k));return[x,yA]});
+if(!(inv==0&&false)){fol.forEach((p,k)=>veh(g,p[0],p[1],0,44*s,22*s,pal[(k*2+1)%7]))}
+if(jc||rb||inv==0){const x=(w+80-((tt*60+300)%(w+200))),y=cy-RW*(du?.45:.2);veh(g,x,y,Math.PI,44*s,22*s,pal[4])}
+if(dk){g.fillStyle='rgba(0,6,10,'+(dk==1?.4:.68)+')';g.fillRect(0,0,w,h);g.globalCompositeOperation='lighter';for(let x=RW*.4;x<w;x+=RW*2.2){[cy-rh/2-sw*.5,cy+rh/2+sw*.5].forEach(y=>{const gr=g.createRadialGradient(x,y,0,x,y,RW*.8);gr.addColorStop(0,dk==1?'rgba(255,214,140,.45)':'rgba(255,214,140,.1)');gr.addColorStop(1,'rgba(255,214,140,0)');g.fillStyle=gr;g.fillRect(x-RW,y-RW,RW*2,RW*2)})}
+[a,bb].forEach(p=>{const fx=p[0]+Math.cos(p[2])*RW*.7,fy=p[1]+Math.sin(p[2])*RW*.7,gr=g.createRadialGradient(fx,fy,0,fx,fy,RW*.9);gr.addColorStop(0,'rgba(255,240,180,.4)');gr.addColorStop(1,'rgba(255,240,180,0)');g.fillStyle=gr;g.fillRect(fx-RW,fy-RW,RW*2,RW*2)});g.globalCompositeOperation='source-over'}
+if(tt<T0&&ST[spd]){const m=ST[spd],px=RW/7,len=Math.min(m*px*(wet?2:1),w),x0=a[0]+24*s;g.fillStyle='rgba(255,176,32,.28)';g.fillRect(x0,a[1]-6*s,len,12*s);g.fillStyle='rgba(255,176,32,.9)';g.fillRect(x0,a[1]-6*s,3,12*s);g.fillRect(x0+len-3,a[1]-6*s,3,12*s);g.font='bold '+Math.max(11,12*s)+'px Segoe UI,Arial';g.fillStyle='#ffd27a';g.fillText(spd+' mph: '+m+' m to stop'+(wet?' dry, at least '+m*2+' m wet':''),x0,a[1]-12*s)}
+veh(g,a[0],a[1],a[2]-dt*.5*(1-Math.exp(-dt*3)),44*s,22*s,'#4aa3ff');
+const dims=[[0,0],[22,6],[26,9],[54,26],[90,28],[44,22]][inv];if(inv==0){const py=bb[1]+Math.sin(tt*9)*1.5;ped(g,bb[0],py,bb[2],'#ffd24a',tt,s*1.5)}else veh(g,bb[0],bb[1],bb[2]+dt*.7*(1-Math.exp(-dt*3)),dims[0]*s,dims[1]*s,inv<3?'#ff9a3c':pal[inv==4?5:3],inv<3);
+if(we==1||we==4){g.strokeStyle='rgba(180,220,255,.35)';g.lineWidth=1;g.beginPath();for(let n=0;n<110;n++){const x=(rg()*w+tt*60)%w,y=(rg()*h+tt*600)%h;g.moveTo(x,y);g.lineTo(x-4,y+14)}g.stroke()}
+if(we==2||we==5){g.fillStyle='rgba(255,255,255,.7)';for(let n=0;n<90;n++)g.fillRect((rg()*w+tt*20)%w,(rg()*h+tt*90)%h,2.5,2.5)}
+if(we==6){g.fillStyle='rgba(205,228,218,.28)';g.fillRect(0,0,w,h)}
+if(dt>0){const rr=Math.min(dt,2),al=Math.max(0,1-dt/2.2),gr=g.createRadialGradient(P[0],P[1],0,P[0],P[1],RW*(.4+rr*.7));gr.addColorStop(0,'rgba(255,77,90,'+al*.8+')');gr.addColorStop(1,'rgba(255,77,90,0)');g.fillStyle=gr;g.fillRect(P[0]-RW*2,P[1]-RW*2,RW*4,RW*4);
+g.strokeStyle=SC[sv];g.globalAlpha=al;g.lineWidth=3;g.beginPath();g.arc(P[0],P[1],rr*RW*.7,0,6.3);g.stroke();for(let n=0;n<12;n++){const an=n*.52+rg(),l1=rr*RW*.5,l2=l1+10*s;g.beginPath();g.moveTo(P[0]+Math.cos(an)*l1,P[1]+Math.sin(an)*l1);g.lineTo(P[0]+Math.cos(an)*l2,P[1]+Math.sin(an)*l2);g.stroke()}g.globalAlpha=1;
+const ty=P[1]-RW*.9,q=(16+Math.sin(tt*8)*2)*s;g.fillStyle='#ff4d5a';g.shadowColor='#ff4d5a';g.shadowBlur=18;g.beginPath();g.moveTo(P[0],ty-q);g.lineTo(P[0]+q,ty+q*.7);g.lineTo(P[0]-q,ty+q*.7);g.closePath();g.fill();g.shadowBlur=0;g.fillStyle='#fff';g.font='bold '+(16*s)+'px Segoe UI';g.textAlign='center';g.fillText('!',P[0],ty+q*.25);g.textAlign='left'}
+const ph=tt<T0*.55?'1  Approach':tt<T0?'2  Conflict':'3  Impact';g.fillStyle='rgba(4,10,7,.8)';g.beginPath();g.roundRect(w/2-70,h-46,140,28,14);g.fill();g.strokeStyle=SC[sv];g.lineWidth=1.5;g.stroke();g.fillStyle='#fff';g.font='bold 13px Segoe UI,Arial';g.textAlign='center';g.fillText(ph,w/2,h-28);g.textAlign='left';
+g.fillStyle='#fff';g.strokeStyle='#e0202c';g.lineWidth=5;g.beginPath();g.arc(w-60,h-60,24,0,6.3);g.fill();g.stroke();g.fillStyle='#000';g.font='bold 18px Segoe UI';g.textAlign='center';g.fillText(spd,w-60,h-59);g.textAlign='left'}
+function why(i){const o=[],spd=parseInt(NM.sp[C.sp[i]])||0,jn=C.jn[i],rt=C.rt[i],inv=C.inv[i],dk=C.li[i],we=C.we[i],su=C.su[i],hr=C.hr[i];
+const WJ={1:'At T-junctions, side-road traffic must judge gaps in fast main-road traffic, and turning vehicles cross opposing flows.',2:'Crossroads create many conflict points: vehicles cross, turn and merge from four directions.',3:'Junctions with many arms are complex, so a vehicle can appear from a direction the driver was not watching.',4:'Private drives and entrances put slow or hidden vehicles into live traffic.',5:'Unusual junction layouts give drivers less time to read who has priority.'};
+const WR={0:'Roundabouts slow traffic but create entry conflicts, especially for cyclists and motorcyclists.',1:'One-way streets encourage speed and hide people crossing from the unexpected side.',2:'Dual carriageways are fast, so crashes happen with very little time to react.',3:'Single carriageways have no barrier between opposing lanes, so a lane drift can become a head-on crash.',4:'Slip roads force vehicles to merge between different speeds.'};
+const WU=['Pedestrians have no protection, so the same impact is far more likely to be serious than for car occupants.','Cyclists are hard to see at junctions and have no protection.','Motorcyclists are easy to miss at junctions and have no protection.','Vans and lorries need longer to stop and have large blind spots.','Buses and coaches are heavy, with long stopping distances and big blind spots.'];
+if(WJ[jn])o.push(WJ[jn]);if(WR[rt])o.push(WR[rt]);
+if(spd>=50)o.push('At '+spd+' mph a car needs about '+ST[spd]+' m to stop on a dry road (Highway Code), and crash forces rise steeply with speed.');
+if(dk==1)o.push('After dark, visibility is reduced even on lit streets.');else if(dk>1)o.push('With no working street lighting, drivers only see as far as their headlights.');
+if(we==1||we==4)o.push('Rain reduces grip and how far you can see.');if(we==2||we==5)o.push('Snow reduces grip and visibility.');if(we==6)o.push('Fog cuts the distance at which hazards can be seen.');
+if(su==1)o.push('On wet roads, stopping distances are at least double (Highway Code).');if(su==3||su==4)o.push('Ice or snow removes most of the grip a driver relies on.');
+if(inv<5)o.push(WU[inv]);if(hr>=22||hr<5)o.push('Late-night driving brings tiredness and low visibility.');else if(C.dow[i]<5&&(hr>=7&&hr<=9||hr>=16&&hr<=18))o.push('Rush hour means dense traffic and more conflicts.');
+return o.length?o.slice(0,6).map(x=>'<li>'+x+'</li>').join(''):'<li>No standout risk factor is recorded for this collision.</li>'}
+function simInfo(){const i=SIM.S[SIM.i],row=(a,b)=>'<div class="l"><span>'+a+'</span><b>'+b+'</b></div>';
+$('#si').innerHTML='<h2 style="color:'+SC[C.sev[i]]+'">'+NM.sev[C.sev[i]]+' collision</h2><small>'+(SIM.i+1)+' of '+SIM.S.length+' in this area, most severe first</small>'+
+row('When',NM.dow[C.dow[i]]+' '+C.hr[i]+':00, '+NM.mo[C.mo[i]])+row('Road',NM.rt[C.rt[i]])+row('Junction',NM.jn[C.jn[i]])+row('Speed limit',NM.sp[C.sp[i]])+row('Light',NM.li[C.li[i]])+row('Weather',NM.we[C.we[i]])+row('Surface',NM.su[C.su[i]])+row('Setting',NM.ur[C.ur[i]])+row('Road user hit',NM.inv[C.inv[i]])+row('Vehicles / casualties',C.veh[i]+' / '+C.cas[i])+
+'<h3>Why collisions like this happen</h3><ul class="wy">'+why(i)+'</ul><p>Illustrative reconstruction: the road layout, speed limit, light, weather and road user come from the police record. The exact vehicle paths are not in the data. The amber bar shows the stopping distance for the recorded speed limit.</p>'}
+function openSim(S){SIM.S=S.slice().sort((a,b)=>C.sev[a]-C.sev[b]||((a*7919)%101)-((b*7919)%101)).slice(0,60);SIM.i=0;SIM.t0=performance.now();SIM.on=true;$('#sim').style.display='block';$('#card').style.display='none';simInfo()}
+function step(d){SIM.i=(SIM.i+d+SIM.S.length)%SIM.S.length;SIM.t0=performance.now();simInfo()}
+function loop(ts){const g=$('#ov').getContext('2d');g.setTransform(R,0,0,R,0,0);g.clearRect(0,0,W,H);
+if(!SIM.on){HS.forEach((h,i)=>{const x=sx(h.x),y=sy(h.y);if(x<-20||x>W+20||y<-20||y>H+20)return;const p=(Math.sin(ts/380+i)+1)/2,r=8+Math.min(h.s/HS[0].s,1)*8;g.strokeStyle='rgba(255,77,90,'+(1-p)+')';g.lineWidth=2;g.beginPath();g.arc(x,y,r+p*14,0,6.3);g.stroke();g.fillStyle='#ff4d5a';g.shadowColor='#ff4d5a';g.shadowBlur=14;g.beginPath();g.arc(x,y,r*.55,0,6.3);g.fill();g.shadowBlur=0;g.fillStyle='#fff';g.font='bold 10px Segoe UI';g.textAlign='center';g.textBaseline='middle';g.fillText(i+1,x,y+.5)});g.textAlign='left';
+if(sel){g.strokeStyle='#2dff8f';g.setLineDash([5,4]);g.lineWidth=1.5;g.beginPath();g.arc(sx(sel.x),sy(sel.y),Math.max(10,sel.r*V.k),0,6.3);g.stroke();g.setLineDash([])}}
+else{const s=$('#sc').getContext('2d');s.setTransform(R,0,0,R,0,0);scene(s,W,H,(ts-SIM.t0)/1000,SIM.S[SIM.i])}
+requestAnimationFrame(loop)}
+/* ---------- events ---------- */
+$('#nav').innerHTML=T.map((t,i)=>'<button data-t="'+i+'">'+t.n+'</button>').join('');
+function nav(){document.querySelectorAll('#nav button').forEach((e,i)=>e.className=i==tab?'on':'')}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t){tab=+t.dataset.t;nav();update();return}
+if(e.target.id==='rs'){F={};update();return}
+const bmb=e.target.closest('[data-bm]');if(bmb){setBM(bmb.dataset.bm);return}
+if(e.target.id==='cx'){closeCard();return}
+if(e.target.id==='go'){openSim($('#card')._S);return}
+const h=e.target.closest('[data-h]');if(h){const o=HS[+h.dataset.h];map.setView([o.lat,o.lon],14);openCard(o.x,o.y,o.r*2);return}
+const el=e.target.closest('.cl[data-d]');if(!el)return;const d=el.dataset.d,j=+el.dataset.j;
+F[d]=F[d]||new Set();F[d].has(j)?F[d].delete(j):F[d].add(j);if(!F[d].size)delete F[d];update()});
+const TL={dark:['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png','&copy; OpenStreetMap contributors &copy; CARTO'],street:['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png','&copy; OpenStreetMap contributors &copy; CARTO'],sat:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','Imagery &copy; Esri']};
+let tl;function setBM(k){BM=k;if(tl)map.removeLayer(tl);tl=L.tileLayer(TL[k][0],{attribution:TL[k][1],maxZoom:19,subdomains:'abcd'}).addTo(map);document.querySelectorAll('.bm').forEach(b=>b.classList.toggle('on',b.dataset.bm===k));req()}
+map=L.map('map',{zoomSnap:.25,zoomDelta:.5,wheelPxPerZoomLevel:100,zoomAnimation:false,fadeAnimation:false,minZoom:4,maxZoom:18}).setView([54.3,-2.6],5.5);setBM('dark');
+map.on('move zoom resize',()=>{proj();req()});map.on('moveend zoomend',()=>hot());
+map.on('click',e=>{proj();const px=e.containerPoint.x,py=e.containerPoint.y;let best=null,bd=22;HS.forEach(h=>{const d=Math.hypot(sx(h.x)-px,sy(h.y)-py);if(d<bd){bd=d;best=h}});
+if(best)openCard(best.x,best.y,best.r*1.2);else openCard((px+V.ox)/V.k,(py+V.oy)/V.k,24/V.k)});
+$('#zr').onclick=()=>map.fitBounds([[50,-7.5],[58.8,1.8]]);
+$('#sx').onclick=()=>{SIM.on=false;$('#sim').style.display='none';if(sel)openCard(sel.x,sel.y,sel.r)};$('#sn').onclick=()=>step(1);$('#sp').onclick=()=>step(-1);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(SIM.on)$('#sx').onclick();else closeCard()}});
+addEventListener('resize',()=>{layout();hot()});nav();layout();update();requestAnimationFrame(loop);
+</script></body></html>
