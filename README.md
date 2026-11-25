@@ -14,7 +14,7 @@ Real map. Danger zones. Area reports. A street-level replay of how collisions ha
 ![Data](https://img.shields.io/badge/data-UK%20DfT%20STATS19-00703C)
 ![Status](https://img.shields.io/badge/status-active-2dff8f)
 
-[**Live demo**](https://shahdsayedh2020246-source.github.io/uk-road-safety-dashboard/) · [**Open in Colab**](https://colab.research.google.com/github/shahdsayedh2020246-source/uk-road-safety-dashboard/blob/main/UK_Road_Safety_Dashboard.ipynb) · [**Report a bug**](https://github.com/shahdsayedh2020246-source/uk-road-safety-dashboard/issues)
+[**Live demo**](https://shahdsayedh2020246-source.github.io/UK-Road-Safety-Command_analysis_Python/) · [**Open in Colab**](https://colab.research.google.com/github/shahdsayedh2020246-source/UK-Road-Safety-Command_analysis_Python/blob/main/UK_Road_Safety_Dashboard.ipynb) · [**Report a bug**](https://github.com/shahdsayedh2020246-source/UK-Road-Safety-Command_analysis_Python/issues)
 
 <!-- Add a hero screenshot or GIF here -->
 <!-- ![Dashboard](docs/screenshots/hero.png) -->
@@ -92,8 +92,8 @@ Download from the official page: <https://www.gov.uk/government/statistics/road-
 ### Option A: run locally
 
 ```bash
-git clone https://github.com/shahdsayedh2020246-source/uk-road-safety-dashboard.git
-cd uk-road-safety-dashboard
+git clone https://github.com/shahdsayedh2020246-source/UK-Road-Safety-Command_analysis_Python.git
+cd UK-Road-Safety-Command_analysis_Python
 pip install pandas numpy
 ```
 
@@ -105,11 +105,11 @@ python clean_and_build.py
 
 Open the generated `uk_road_safety_dashboard_live.html` in a browser **while online** (the map tiles load from the internet).
 
-Or just open the hosted version: <https://shahdsayedh2020246-source.github.io/uk-road-safety-dashboard/>
+Or just open the hosted version: <https://shahdsayedh2020246-source.github.io/UK-Road-Safety-Command_analysis_Python/>
 
 ### Option B: Google Colab
 
-1. Open `UK_Road_Safety_Dashboard.ipynb` in [Colab](https://colab.research.google.com/github/shahdsayedh2020246-source/uk-road-safety-dashboard/blob/main/UK_Road_Safety_Dashboard.ipynb)
+1. Open `UK_Road_Safety_Dashboard.ipynb` in [Colab](https://colab.research.google.com/github/shahdsayedh2020246-source/UK-Road-Safety-Command_analysis_Python/blob/main/UK_Road_Safety_Dashboard.ipynb)
 2. Upload the three CSV files to the **Files** panel
 3. **Runtime → Run all**
 4. The last cell downloads the dashboard
