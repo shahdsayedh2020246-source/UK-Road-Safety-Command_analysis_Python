@@ -159,6 +159,4 @@ Or just open the hosted version: <https://shahdsayedh2020246-source.github.io/uk
 
 **If this project helped you, give it a ⭐**
 
-Built by [shahdsayedh2020246-source](https://github.com/shahdsayedh2020246-source)
-
 </div>
